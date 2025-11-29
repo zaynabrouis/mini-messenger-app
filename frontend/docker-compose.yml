@@ -1,0 +1,16 @@
+# Docker Compose file for frontend (optional)
+# Usage: docker-compose up
+
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+

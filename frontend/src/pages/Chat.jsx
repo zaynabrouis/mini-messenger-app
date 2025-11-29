@@ -1,0 +1,192 @@
+/**
+ * Chat Page
+ * Main chat interface with Socket.io real-time messaging
+ * - Connects to socket.io server with JWT authentication
+ * - Manages room switching
+ * - Displays and sends messages
+ * - Handles logout
+ */
+
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createSocket } from '../socket';
+import MessageList from '../components/MessageList';
+import MessageInput from '../components/MessageInput';
+import RoomSelector from '../components/RoomSelector';
+import '../styles.css';
+
+const Chat = () => {
+  const navigate = useNavigate();
+  const [socket, setSocket] = useState(null);
+  const [currentRoom, setCurrentRoom] = useState('general');
+  const [messages, setMessages] = useState([]);
+  const [connected, setConnected] = useState(false);
+  const [error, setError] = useState('');
+  const socketRef = useRef(null);
+
+  /**
+   * Initialize Socket.io connection on component mount
+   */
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    // Redirect to login if no token
+    if (!token) {
+      navigate('/');
+      return;
+    }
+
+    try {
+      // Create socket connection with JWT token
+      const newSocket = createSocket();
+      socketRef.current = newSocket;
+      setSocket(newSocket);
+
+      // Connection event handlers
+      newSocket.on('connect', () => {
+        console.log('Connected to server');
+        setConnected(true);
+        setError('');
+        
+        // Join default room on connection
+        newSocket.emit('joinRoom', currentRoom);
+      });
+
+      newSocket.on('disconnect', () => {
+        console.log('Disconnected from server');
+        setConnected(false);
+      });
+
+      newSocket.on('connect_error', (err) => {
+        console.error('Connection error:', err);
+        setError('Failed to connect to server. Please check your connection.');
+        setConnected(false);
+      });
+
+      // Message event handlers
+      newSocket.on('roomHistory', (data) => {
+        console.log('Room history received:', data);
+        if (data.room === currentRoom) {
+          setMessages(data.messages || []);
+        }
+      });
+
+      newSocket.on('message', (message) => {
+        console.log('New message received:', message);
+        if (message.room === currentRoom) {
+          setMessages((prev) => [...prev, message]);
+        }
+      });
+
+      newSocket.on('error', (errorData) => {
+        console.error('Socket error:', errorData);
+        setError(errorData.message || 'An error occurred');
+      });
+
+      // Cleanup on unmount
+      return () => {
+        if (newSocket) {
+          newSocket.disconnect();
+        }
+      };
+    } catch (err) {
+      console.error('Error creating socket:', err);
+      setError(err.message || 'Failed to initialize connection');
+    }
+  }, []); // Run only on mount
+
+  /**
+   * Handle room change
+   * Leaves current room and joins new room
+   */
+  useEffect(() => {
+    if (socket && connected && currentRoom) {
+      // Leave previous room
+      socket.emit('leaveRoom', currentRoom);
+      
+      // Clear messages for room switch
+      setMessages([]);
+      
+      // Join new room
+      socket.emit('joinRoom', currentRoom);
+    }
+  }, [currentRoom, socket, connected]);
+
+  /**
+   * Handle sending a message
+   * @param {string} text - Message text
+   */
+  const handleSendMessage = (text) => {
+    if (socket && connected && currentRoom) {
+      socket.emit('chatMessage', {
+        room: currentRoom,
+        text: text,
+      });
+    }
+  };
+
+  /**
+   * Handle logout
+   * Clears token and redirects to login
+   */
+  const handleLogout = () => {
+    // Disconnect socket
+    if (socket) {
+      socket.disconnect();
+    }
+    
+    // Clear token
+    localStorage.removeItem('token');
+    
+    // Redirect to login
+    navigate('/');
+  };
+
+  // Redirect to login if no token
+  if (!localStorage.getItem('token')) {
+    return null;
+  }
+
+  return (
+    <div className="chat-container">
+      <div className="chat-sidebar">
+        <div className="chat-header">
+          <h1>Mini Messenger</h1>
+          <div className="connection-status">
+            <span className={`status-indicator ${connected ? 'connected' : 'disconnected'}`}>
+              {connected ? '●' : '○'}
+            </span>
+            <span>{connected ? 'Connected' : 'Disconnected'}</span>
+          </div>
+        </div>
+
+        <RoomSelector
+          currentRoom={currentRoom}
+          onRoomChange={setCurrentRoom}
+        />
+
+        <button className="btn btn-logout" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+
+      <div className="chat-main">
+        <div className="chat-room-header">
+          <h2>#{currentRoom}</h2>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <MessageList messages={messages} />
+
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          disabled={!connected}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Chat;
+
