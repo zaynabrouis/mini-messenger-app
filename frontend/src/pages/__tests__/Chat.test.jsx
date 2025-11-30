@@ -8,10 +8,17 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Chat from '../Chat';
 import * as socketModule from '../../socket';
+import * as api from '../../api';
 
 // Mock socket module
 const mockSocket = {
-  on: vi.fn(),
+  on: vi.fn((event, callback) => {
+    // Auto-trigger connect event for tests
+    if (event === 'connect') {
+      setTimeout(() => callback(), 0);
+    }
+    return mockSocket;
+  }),
   emit: vi.fn(),
   disconnect: vi.fn(),
   id: 'test-socket-id',
@@ -19,6 +26,12 @@ const mockSocket = {
 
 vi.mock('../../socket', () => ({
   createSocket: vi.fn(() => mockSocket),
+}));
+
+// Mock API module
+vi.mock('../../api', () => ({
+  get: vi.fn(),
+  post: vi.fn(),
 }));
 
 // Mock react-router-dom navigate
@@ -81,29 +94,38 @@ describe('Chat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('token', 'test-token');
+    // Mock API response for user fetch
+    api.get.mockResolvedValue({
+      success: true,
+      user: { id: '1', username: 'testuser' },
+    });
   });
 
-  it('renders message list component', () => {
+  it('renders message list component', async () => {
     render(
       <BrowserRouter>
         <Chat />
       </BrowserRouter>
     );
 
-    expect(screen.getByTestId('message-list')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('message-list')).toBeInTheDocument();
+    });
   });
 
-  it('displays empty message list when no messages', () => {
+  it('displays empty message list when no messages', async () => {
     render(
       <BrowserRouter>
         <Chat />
       </BrowserRouter>
     );
 
-    expect(screen.getByTestId('no-messages')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('no-messages')).toBeInTheDocument();
+    });
   });
 
-  it('renders messages when provided', () => {
+  it('renders messages when provided', async () => {
     // This test would require mocking the socket events
     // For now, we test that the component structure is correct
     render(
@@ -112,8 +134,10 @@ describe('Chat', () => {
       </BrowserRouter>
     );
 
-    const messageList = screen.getByTestId('message-list');
-    expect(messageList).toBeInTheDocument();
+    await waitFor(() => {
+      const messageList = screen.getByTestId('message-list');
+      expect(messageList).toBeInTheDocument();
+    });
   });
 
   it('displays current room name', async () => {
@@ -129,24 +153,28 @@ describe('Chat', () => {
     });
   });
 
-  it('renders room selector component', () => {
+  it('renders room selector component', async () => {
     render(
       <BrowserRouter>
         <Chat />
       </BrowserRouter>
     );
 
-    expect(screen.getByTestId('room-selector')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('room-selector')).toBeInTheDocument();
+    });
   });
 
-  it('renders message input component', () => {
+  it('renders message input component', async () => {
     render(
       <BrowserRouter>
         <Chat />
       </BrowserRouter>
     );
 
-    expect(screen.getByTestId('message-input')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('message-input')).toBeInTheDocument();
+    });
   });
 
   it('redirects to login if no token', () => {
