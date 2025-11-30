@@ -9,8 +9,8 @@ import '../styles.css';
 const MessageList = ({ messages, currentUser }) => {
   if (!messages || messages.length === 0) {
     return (
-      <div className="message-list empty">
-        <p>No messages yet. Start the conversation!</p>
+      <div className="message-list empty" data-testid="message-list">
+        <p data-testid="no-messages">No messages yet. Start the conversation!</p>
       </div>
     );
   }
@@ -39,7 +39,7 @@ const MessageList = ({ messages, currentUser }) => {
   };
 
   return (
-    <div className="message-list">
+    <div className="message-list" data-testid="message-list">
       {messages.map((message) => {
         const isOwnMessage = currentUser && message.username === currentUser.username;
         return (

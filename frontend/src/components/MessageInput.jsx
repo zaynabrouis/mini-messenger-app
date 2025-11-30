@@ -35,7 +35,7 @@ const MessageInput = ({ onSendMessage, disabled = false }) => {
   };
 
   return (
-    <form className="message-input-form" onSubmit={handleSubmit}>
+    <form className="message-input-form" onSubmit={handleSubmit} data-testid="message-input">
       <input
         type="text"
         className="message-input"

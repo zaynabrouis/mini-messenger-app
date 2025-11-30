@@ -115,7 +115,7 @@ const Login = () => {
 
             {error && <div className="error-message">{error}</div>}
 
-            <button type="submit" className="btn-primary" disabled={loading}>
+            <button type="submit" className="btn-primary" disabled={loading} aria-label={loading ? 'Logging in' : 'Login'}>
               {loading ? 'Signing In...' : 'Sign In'}
             </button>
 

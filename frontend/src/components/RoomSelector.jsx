@@ -87,9 +87,9 @@ const RoomSelector = ({ currentRoom, onRoomChange, onCreateRoom }) => {
   };
 
   return (
-    <div className="room-selector">
+    <div className="room-selector" data-testid="room-selector">
       <div className="room-selector-header">
-        <h3>Rooms</h3>
+        <h3 data-testid="rooms-header">Rooms</h3>
         <button
           className="btn btn-small"
           onClick={() => setShowCreateForm(!showCreateForm)}

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Chat from '../Chat';
 import * as socketModule from '../../socket';
@@ -116,7 +116,7 @@ describe('Chat', () => {
     expect(messageList).toBeInTheDocument();
   });
 
-  it('displays current room name', () => {
+  it('displays current room name', async () => {
     render(
       <BrowserRouter>
         <Chat />
@@ -124,7 +124,9 @@ describe('Chat', () => {
     );
 
     // Wait for component to render with default room
-    expect(screen.getByText(/#general/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/#general/i)).toBeInTheDocument();
+    });
   });
 
   it('renders room selector component', () => {

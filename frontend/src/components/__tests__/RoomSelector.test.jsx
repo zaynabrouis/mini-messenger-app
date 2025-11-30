@@ -37,7 +37,7 @@ describe('RoomSelector', () => {
       />
     );
 
-    expect(screen.getByText(/rooms/i)).toBeInTheDocument();
+    expect(screen.getByTestId('rooms-header')).toBeInTheDocument();
   });
 
   it('calls onRoomChange callback when a room is selected', async () => {
@@ -200,7 +200,7 @@ describe('RoomSelector', () => {
     // Component should handle error gracefully
     await waitFor(() => {
       // Error handling is internal, just verify component doesn't crash
-      expect(screen.getByText(/rooms/i)).toBeInTheDocument();
+      expect(screen.getByTestId('rooms-header')).toBeInTheDocument();
     });
   });
 });
