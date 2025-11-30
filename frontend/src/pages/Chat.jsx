@@ -13,6 +13,7 @@ import { createSocket } from '../socket';
 import MessageList from '../components/MessageList';
 import MessageInput from '../components/MessageInput';
 import RoomSelector from '../components/RoomSelector';
+import { get } from '../api';
 import '../styles.css';
 
 const Chat = () => {
@@ -22,7 +23,25 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
   const socketRef = useRef(null);
+
+  /**
+   * Fetch current user info
+   */
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await get('/api/user');
+        if (response.success) {
+          setCurrentUser(response.user);
+        }
+      } catch (err) {
+        console.error('Failed to fetch user:', err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   /**
    * Initialize Socket.io connection on component mount
@@ -177,7 +196,7 @@ const Chat = () => {
 
         {error && <div className="error-message">{error}</div>}
 
-        <MessageList messages={messages} />
+        <MessageList messages={messages} currentUser={currentUser} />
 
         <MessageInput
           onSendMessage={handleSendMessage}

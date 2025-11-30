@@ -6,7 +6,7 @@
 
 import '../styles.css';
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messages, currentUser }) => {
   if (!messages || messages.length === 0) {
     return (
       <div className="message-list empty">
@@ -40,15 +40,21 @@ const MessageList = ({ messages }) => {
 
   return (
     <div className="message-list">
-      {messages.map((message) => (
-        <div key={message._id || message.ts} className="message-item">
-          <div className="message-header">
-            <span className="message-username">{message.username}</span>
-            <span className="message-time">{formatTime(message.ts)}</span>
+      {messages.map((message) => {
+        const isOwnMessage = currentUser && message.username === currentUser.username;
+        return (
+          <div 
+            key={message._id || message.ts} 
+            className={`message-item ${isOwnMessage ? 'message-own' : ''}`}
+          >
+            <div className="message-header">
+              <span className="message-username">{message.username}</span>
+              <span className="message-time">{formatTime(message.ts)}</span>
+            </div>
+            <div className="message-text">{message.text}</div>
           </div>
-          <div className="message-text">{message.text}</div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
