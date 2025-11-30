@@ -78,7 +78,18 @@ const Chat = () => {
 
       newSocket.on('connect_error', (err) => {
         console.error('Connection error:', err);
-        setError('Failed to connect to server. Please check your connection.');
+        const errorMessage = err.message || 'Failed to connect to server';
+        
+        // If authentication error, clear token and redirect to login
+        if (errorMessage.includes('Authentication') || errorMessage.includes('token')) {
+          localStorage.removeItem('token');
+          setError('Session expired. Please login again.');
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        } else {
+          setError('Failed to connect to server. Please check your connection.');
+        }
         setConnected(false);
       });
 

@@ -8,6 +8,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const socketIo = require('socket.io');
+const mongoose = require('mongoose');
 const connectDB = require('./db');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
@@ -69,6 +70,7 @@ io.use(async (socket, next) => {
     const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.substring(7);
 
     if (!token) {
+      console.error('Socket auth: No token provided');
       return next(new Error('Authentication error: No token provided'));
     }
 
@@ -76,6 +78,7 @@ io.use(async (socket, next) => {
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {
+      console.error('Socket auth: User not found for userId:', decoded.userId);
       return next(new Error('Authentication error: User not found'));
     }
 
@@ -83,13 +86,27 @@ io.use(async (socket, next) => {
     socket.username = user.username;
     next();
   } catch (error) {
-    next(new Error('Authentication error: Invalid token'));
+    if (error.name === 'JsonWebTokenError') {
+      console.error('Socket auth: Invalid token -', error.message);
+      return next(new Error('Authentication error: Invalid token'));
+    }
+    if (error.name === 'TokenExpiredError') {
+      console.error('Socket auth: Token expired');
+      return next(new Error('Authentication error: Token expired'));
+    }
+    console.error('Socket auth error:', error.message);
+    return next(new Error('Authentication error: ' + error.message));
   }
 });
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log(`✅ User connected: ${socket.username} (${socket.id})`);
+
+  // Handle connection errors
+  socket.on('error', (error) => {
+    console.error(`Socket error for ${socket.username}:`, error);
+  });
 
   /**
    * Handle joining a room
@@ -106,8 +123,41 @@ io.on('connection', (socket) => {
 
       const roomName = room.trim();
 
+      // Check MongoDB connection before querying
+      if (mongoose.connection.readyState !== 1) {
+        console.error('MongoDB not connected, attempting to reconnect...');
+        try {
+          await connectDB(false); // Don't exit on error, just throw
+          // Wait a bit for connection to stabilize
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (reconnectError) {
+          console.error('Failed to reconnect to MongoDB:', reconnectError.message);
+          socket.emit('error', { 
+            message: 'Database connection lost. Please refresh the page.' 
+          });
+          return;
+        }
+      }
+
       // Check if room exists in database
-      const roomExists = await Room.findOne({ name: roomName });
+      let roomExists;
+      try {
+        roomExists = await Room.findOne({ name: roomName });
+      } catch (dbError) {
+        console.error('Database error when checking room:', dbError);
+        // If it's an authentication error, provide helpful message
+        if (dbError.code === 18 || dbError.codeName === 'AuthenticationFailed') {
+          socket.emit('error', { 
+            message: 'Database authentication failed. Please check your MongoDB connection string.' 
+          });
+        } else {
+          socket.emit('error', { 
+            message: 'Database error. Please try again later.' 
+          });
+        }
+        return;
+      }
+
       if (!roomExists) {
         socket.emit('error', { 
           message: `Room "${roomName}" does not exist. Please create the room first.` 
