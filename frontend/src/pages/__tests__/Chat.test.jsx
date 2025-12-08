@@ -48,6 +48,10 @@ describe('Chat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.setItem('token', 'test-token');
+    
+    // Ensure socket mock returns the object
+    socketModule.createSocket.mockReturnValue(mockSocket);
+
     // Mock API response for user fetch
     api.get.mockResolvedValue({
       success: true,
