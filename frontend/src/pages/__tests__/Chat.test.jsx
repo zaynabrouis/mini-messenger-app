@@ -139,7 +139,8 @@ describe('Chat', () => {
   });
 
   it('redirects to login if no token', () => {
-    localStorage.removeItem('token');
+    // Override mock to return null for this test
+    localStorage.getItem.mockReturnValue(null);
 
     render(
       <BrowserRouter>
