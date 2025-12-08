@@ -1,5 +1,6 @@
 name: DevSecOps Pipeline
 
+# Trigger on push to main
 on:
   push:
     branches: [ main ]
