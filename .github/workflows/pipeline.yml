@@ -1,5 +1,6 @@
 name: DevSecOps Pipeline
 
+# CI/CD pipeline with security scanning
 # Trigger on push to main
 on:
   push:
