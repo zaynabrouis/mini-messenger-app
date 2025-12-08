@@ -33,6 +33,9 @@ const io = socketIo(server, {
 });
 
 // Connect to MongoDB
+console.log('Attempting to connect to MongoDB...');
+const dbURI = process.env.MONGODB_URI || 'undefined';
+console.log('Connection String:', dbURI.includes('@') ? dbURI.split('@')[1] : dbURI); // Log host only for security
 connectDB();
 
 // Middleware

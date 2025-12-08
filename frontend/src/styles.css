@@ -329,24 +329,57 @@ body {
   border-right: 1px solid rgba(255,255,255,0.1);
 }
 
-.chat-header h1 {
+/* User Info Header */
+.chat-header {
+  margin-bottom: 30px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 5px;
-  letter-spacing: -0.5px;
+  color: white;
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
 }
 
 .connection-status {
   display: flex;
   align-items: center;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin-bottom: 30px;
+  font-size: 0.75rem;
+  opacity: 0.8;
 }
 
 .status-indicator {
   margin-right: 6px;
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .status-indicator.connected { color: #00ff88; text-shadow: 0 0 5px #00ff88; }
@@ -504,6 +537,7 @@ body {
 .message-list::-webkit-scrollbar-track { background: transparent; }
 
 .message-list.empty {
+  display: flex;
   justify-content: center;
   align-items: center;
   color: var(--text-gray);

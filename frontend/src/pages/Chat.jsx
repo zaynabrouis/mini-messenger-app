@@ -181,12 +181,19 @@ const Chat = () => {
     <div className="chat-container">
       <div className="chat-sidebar">
         <div className="chat-header">
-          <h1>Mini Messenger</h1>
-          <div className="connection-status">
-            <span className={`status-indicator ${connected ? 'connected' : 'disconnected'}`}>
-              {connected ? '●' : '○'}
-            </span>
-            <span>{connected ? 'Connected' : 'Disconnected'}</span>
+          <div className="user-info">
+            <div className="user-avatar">
+              {currentUser ? currentUser.username.charAt(0).toUpperCase() : 'Z'}
+            </div>
+            <div className="user-details">
+              <span className="username">{currentUser ? currentUser.username : 'Loading...'}</span>
+              <div className="connection-status">
+                <span className={`status-indicator ${connected ? 'connected' : 'disconnected'}`}>
+                  {connected ? '●' : '○'}
+                </span>
+                <span>{connected ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
           </div>
         </div>
 
