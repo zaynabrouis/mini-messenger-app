@@ -53,7 +53,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd backend
-          npm ci
+          npm install
           
       # Add test step here when tests are available
       # - name: Run Tests
@@ -75,7 +75,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd frontend
-          npm ci
+          npm install
           
       - name: Lint
         run: |
