@@ -36,8 +36,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        # Only run if secrets are available to prevent failure on forks/local
-        if: ${{ secrets.ZMESSENGERTOKEN != '' }}
 
       - name: Run Trivy vulnerability scanner (Filesystem)
         uses: aquasecurity/trivy-action@master
