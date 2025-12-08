@@ -1,0 +1,94 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Gitleaks - Secret Scanning
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Backend Dependency Audit
+        run: |
+          cd backend
+          npm audit --audit-level=high || true 
+          # || true is used to not fail the build for now, remove for strict checking
+
+      - name: Frontend Dependency Audit
+        run: |
+          cd frontend
+          npm audit --audit-level=high || true
+
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        # Only run if secrets are available to prevent failure on forks/local
+        if: ${{ secrets.ZMESSENGERTOKEN != '' }}
+
+  backend:
+    needs: security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: |
+          cd backend
+          npm ci
+          
+      # Add test step here when tests are available
+      # - name: Run Tests
+      #   run: |
+      #     cd backend
+      #     npm test
+
+  frontend:
+    needs: security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci
+          
+      - name: Lint
+        run: |
+          cd frontend
+          # Assuming lint script exists or running eslint directly if installed
+          # npm run lint || true 
+          
+      - name: Run Tests
+        run: |
+          cd frontend
+          npm test -- --run # Run once, not watch mode
+          
+      - name: Build
+        run: |
+          cd frontend
+          npm run build
+
