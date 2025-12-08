@@ -32,6 +32,19 @@ const io = socketIo(server, {
   },
 });
 
+// Prometheus Metrics
+const client = require('prom-client');
+const collectDefaultMetrics = client.collectDefaultMetrics;
+const register = new client.Registry();
+collectDefaultMetrics({ register });
+
+// Add a custom metric (example: connected users)
+const connectedUsersGauge = new client.Gauge({
+  name: 'chat_connected_users_total',
+  help: 'Total number of connected users',
+  registers: [register],
+});
+
 // Connect to MongoDB
 console.log('Attempting to connect to MongoDB...');
 const dbURI = process.env.MONGODB_URI || 'undefined';
@@ -45,6 +58,12 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // Public Routes
 app.use('/auth', authRoutes);
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 // Health check endpoint (public)
 app.get('/health', (req, res) => {
@@ -105,6 +124,7 @@ io.use(async (socket, next) => {
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log(`✅ User connected: ${socket.username} (${socket.id})`);
+  connectedUsersGauge.inc();
 
   // Handle connection errors
   socket.on('error', (error) => {
@@ -279,6 +299,7 @@ io.on('connection', (socket) => {
    */
   socket.on('disconnect', () => {
     console.log(`❌ User disconnected: ${socket.username} (${socket.id})`);
+    connectedUsersGauge.dec();
   });
 });
 

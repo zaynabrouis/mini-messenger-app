@@ -44,52 +44,6 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock child components
-vi.mock('../../components/MessageList', () => ({
-  default: ({ messages }) => (
-    <div data-testid="message-list">
-      {messages && messages.length > 0 ? (
-        messages.map((msg, idx) => (
-          <div key={idx} data-testid="message-item">
-            <span data-testid="message-username">{msg.username}</span>
-            <span data-testid="message-text">{msg.text}</span>
-          </div>
-        ))
-      ) : (
-        <div data-testid="no-messages">No messages yet</div>
-      )}
-    </div>
-  ),
-}));
-
-vi.mock('../../components/MessageInput', () => ({
-  default: ({ onSendMessage, disabled }) => (
-    <div data-testid="message-input">
-      <button
-        data-testid="send-button"
-        onClick={() => onSendMessage && onSendMessage('test message')}
-        disabled={disabled}
-      >
-        Send
-      </button>
-    </div>
-  ),
-}));
-
-vi.mock('../../components/RoomSelector', () => ({
-  default: ({ currentRoom, onRoomChange }) => (
-    <div data-testid="room-selector">
-      <div data-testid="current-room">{currentRoom}</div>
-      <button
-        data-testid="change-room-button"
-        onClick={() => onRoomChange('newroom')}
-      >
-        Change Room
-      </button>
-    </div>
-  ),
-}));
-
 describe('Chat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
