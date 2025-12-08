@@ -47,7 +47,10 @@ vi.mock('react-router-dom', async () => {
 describe('Chat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.setItem('token', 'test-token');
+    
+    // Mock localStorage.getItem to return a token
+    // global.localStorage is mocked in setup.js with vi.fn()
+    localStorage.getItem.mockReturnValue('test-token');
     
     // Ensure socket mock returns the object
     socketModule.createSocket.mockReturnValue(mockSocket);
