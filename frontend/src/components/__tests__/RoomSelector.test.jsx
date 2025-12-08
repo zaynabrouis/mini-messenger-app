@@ -23,7 +23,7 @@ describe('RoomSelector', () => {
     vi.clearAllMocks();
   });
 
-  it('renders room selector component', () => {
+  it('renders room selector component', async () => {
     api.get.mockResolvedValue({
       success: true,
       rooms: [],
@@ -38,6 +38,11 @@ describe('RoomSelector', () => {
     );
 
     expect(screen.getByTestId('rooms-header')).toBeInTheDocument();
+    
+    // Wait for the API call to settle to avoid "act" warning
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalled();
+    });
   });
 
   it('calls onRoomChange callback when a room is selected', async () => {
