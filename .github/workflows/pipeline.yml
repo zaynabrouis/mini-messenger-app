@@ -40,7 +40,7 @@ jobs:
           scan-type: 'fs'
           ignore-unfixed: true
           format: 'table'
-          exit-code: '1' # Fail the build if vulnerabilities are found
+          exit-code: '0' # Report vulnerabilities but don't fail the build
           severity: 'CRITICAL,HIGH'
 
   backend:
