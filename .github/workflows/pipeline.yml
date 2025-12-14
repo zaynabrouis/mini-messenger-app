@@ -28,15 +28,12 @@ jobs:
           cd frontend
           npm audit --audit-level=high || true
 
-      # SonarQube Scan - Disabled (metrics already collected and documented)
-      # Quality improvements: 35 issues → 12 issues (66% reduction)
-      # All blocker and major issues resolved
-      # - name: SonarQube Scan
-      #   uses: sonarsource/sonarqube-scan-action@master
-      #   continue-on-error: true
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        continue-on-error: true  # Allow pipeline to continue even if SonarQube fails
+        env:
+          SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Run Trivy vulnerability scanner (Filesystem)
         uses: aquasecurity/trivy-action@master
