@@ -39,8 +39,8 @@ router.get(
   async (req, res, next) => {
     try {
       const { room } = req.query;
-      const limit = parseInt(req.query.limit) || 50;
-      const skip = parseInt(req.query.skip) || 0;
+      const limit = Number.parseInt(req.query.limit, 10) || 50;
+      const skip = Number.parseInt(req.query.skip, 10) || 0;
 
       // Fetch messages from the room, sorted by timestamp (newest first)
       const messages = await Message.find({ room: room.trim() })
@@ -183,8 +183,8 @@ router.get(
   async (req, res, next) => {
     try {
       const { roomId } = req.params;
-      const limit = parseInt(req.query.limit) || 50;
-      const skip = parseInt(req.query.skip) || 0;
+      const limit = Number.parseInt(req.query.limit, 10) || 50;
+      const skip = Number.parseInt(req.query.skip, 10) || 0;
 
       // Fetch messages from the room
       const messages = await Message.find({ room: roomId.trim() })

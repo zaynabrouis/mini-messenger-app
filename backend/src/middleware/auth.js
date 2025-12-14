@@ -28,9 +28,9 @@ const User = require('../models/User');
 const authMiddleware = async (req, res, next) => {
   try {
     // Get token from Authorization header
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers?.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
         message: 'No token provided. Authorization header must be in format: Bearer <token>',

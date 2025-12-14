@@ -4,6 +4,7 @@
  * Shows username, message text, and timestamp
  */
 
+import PropTypes from 'prop-types';
 import '../styles.css';
 
 const MessageList = ({ messages, currentUser }) => {
@@ -57,6 +58,18 @@ const MessageList = ({ messages, currentUser }) => {
       })}
     </div>
   );
+};
+
+MessageList.propTypes = {
+  messages: PropTypes.arrayOf(PropTypes.shape({
+    _id: PropTypes.string,
+    username: PropTypes.string.isRequired,
+    text: PropTypes.string.isRequired,
+    ts: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]).isRequired,
+  })),
+  currentUser: PropTypes.shape({
+    username: PropTypes.string,
+  }),
 };
 
 export default MessageList;

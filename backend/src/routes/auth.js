@@ -39,7 +39,7 @@ router.post(
       .trim()
       .isLength({ min: 3, max: 20 })
       .withMessage('Username must be between 3 and 20 characters')
-      .matches(/^[a-zA-Z0-9_]+$/)
+      .matches(/^\w+$/)
       .withMessage('Username can only contain letters, numbers, and underscores'),
     body('password')
       .isLength({ min: 6 })
@@ -56,7 +56,8 @@ router.post(
       const { username, password, email } = req.body;
 
       // Check if user already exists (username)
-      const existingUser = await User.findOne({ username });
+      // Using Mongoose query builder to prevent injection
+      const existingUser = await User.findOne({ username: username.toString() });
       if (existingUser) {
         return res.status(409).json({
           success: false,
@@ -66,7 +67,7 @@ router.post(
 
       // Check if email already exists (if provided)
       if (email) {
-        const existingEmail = await User.findOne({ email });
+        const existingEmail = await User.findOne({ email: email.toString() });
         if (existingEmail) {
           return res.status(409).json({
             success: false,
@@ -133,8 +134,8 @@ router.post(
     try {
       const { username, password } = req.body;
 
-      // Find user by username
-      const user = await User.findOne({ username });
+      // Find user by username using sanitized input
+      const user = await User.findOne({ username: username.toString() });
       if (!user) {
         // Return generic error message to prevent username enumeration
         return res.status(401).json({

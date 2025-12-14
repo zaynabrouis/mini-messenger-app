@@ -5,7 +5,7 @@
 
 require('dotenv').config();
 const express = require('express');
-const http = require('http');
+const http = require('node:http');
 const cors = require('cors');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');

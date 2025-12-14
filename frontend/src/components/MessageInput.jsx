@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import '../styles.css';
 
 const MessageInput = ({ onSendMessage, disabled = false }) => {
@@ -55,6 +56,11 @@ const MessageInput = ({ onSendMessage, disabled = false }) => {
       </button>
     </form>
   );
+};
+
+MessageInput.propTypes = {
+  onSendMessage: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
 };
 
 export default MessageInput;

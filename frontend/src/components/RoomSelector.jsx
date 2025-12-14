@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { get, post } from '../api';
 import '../styles.css';
 
@@ -135,6 +136,12 @@ const RoomSelector = ({ currentRoom, onRoomChange, onCreateRoom }) => {
       </div>
     </div>
   );
+};
+
+RoomSelector.propTypes = {
+  currentRoom: PropTypes.string,
+  onRoomChange: PropTypes.func.isRequired,
+  onCreateRoom: PropTypes.func,
 };
 
 export default RoomSelector;

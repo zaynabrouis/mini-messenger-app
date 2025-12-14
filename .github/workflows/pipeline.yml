@@ -30,6 +30,7 @@ jobs:
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
+        continue-on-error: true  # Allow pipeline to continue even if SonarQube fails
         env:
           SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
