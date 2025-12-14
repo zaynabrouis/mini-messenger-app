@@ -28,12 +28,12 @@ jobs:
           cd frontend
           npm audit --audit-level=high || true
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         continue-on-error: true  # Allow pipeline to continue even if SonarQube fails
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.ZMESSENGERTOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Run Trivy vulnerability scanner (Filesystem)
         uses: aquasecurity/trivy-action@master
